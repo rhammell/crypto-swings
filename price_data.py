@@ -6,10 +6,10 @@ import json
 import gdax
 
 # Initialize output data
-output = {'BTC-USD': {'prices': [], 'dates': []},
-          'BCH-USD': {'prices': [], 'dates': []},
-          'ETH-USD': {'prices': [], 'dates': []},
-          'LTC-USD': {'prices': [], 'dates': []} }
+output = {'BTC-USD': [],
+          'BCH-USD': [],
+          'ETH-USD': [],
+          'LTC-USD': [] }
 
 # Create gdax client
 client = gdax.PublicClient()
@@ -51,8 +51,7 @@ for dates in date_ranges:
             # Add price and date to output
             price = float(candle[4])
             date = datetime.date.fromtimestamp(candle[0]).isoformat()
-            output[product_id]['prices'].append(price)
-            output[product_id]['dates'].append(date)
+            output[product_id].append({'Date': date, 'Price': price})
 
         # Pause between requests to comply with API limits
         time.sleep(3)
