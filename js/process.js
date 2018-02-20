@@ -33,58 +33,121 @@ svg.append("g")
     .call(y_axis);
 
 var valueline = d3.line()
-    .x(function(d) { return x(d.Date); })
-    .y(function(d) { return y(d.Price); });
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.price); });
 
 svg.append("path")
     .attr("class", "line")
 
 
-// Price data held in global 
+// price data held in global 
 var price_data;
 
 // Load price data initialize chart
 $(document).ready(function() {
   
+    // Load in price data
     $.getJSON("price_data.json", function(json) {
+
+        // Set to global variable
         price_data = json;
 
-        updateChart();
+        // Process search parameters
+        process();
     });
 });
 
 // Callback when parameters are changed
 $('.parameter').on('change', function() {
-    updateChart();
+
+    // Process search paramters
+    process();
 });
 
-// Display chart based on selected parameters
-function updateChart() {
+function process() {
 
     // Grab parameter values
-    product = $('#product').val()
+    product = $('#product').val();
+    change = parseFloat($('#change').val());
+    change = (100 + change) / 100.
+    time = parseInt($('#time').val());
 
-    // Filter
+    // Copy selected product data 
+    var data = jQuery.extend(true, [], price_data[product]);
 
-    draw(price_data, product);
+    // Calulate dates that meet parameter search
+    dates = calculatedates(data, change, time);
+    console.log('Num dates: ' + dates.length.toString());
+    for (i in dates) {
+        console.log(dates[i]);
+    }
+
+    // Update table
+    updateTable(dates);
+
+    // Update chart
+    updateChart(data);
+}
+
+// Return the price dates that meet input criteria
+function calculatedates(data, change, time) {
+
+    // Set output
+    var dates = [];
+
+    // Loop through price history 
+    for (i=0; i < data.length-1; i++) {
+
+        // Subset data for selected time span
+        span = data.slice(i,i+time+1);
+
+        // Set change flag
+        var changed = false;
+
+        // Determine if price change occured within span
+        for (j=1; j < span.length; j++) {
+            if (change > 1.0) {
+                if (span[j].price > span[0].price * change) {
+                    changed = true;
+                    break;
+                }
+            } else {
+                if (span[j].price < span[0].price * change) {
+                    changed = true;
+                    break;
+                }
+            }
+        }
+
+        // Update output
+        if (changed) {
+            dates.push({'date_start': span[0].date,
+                        'price_start': span[0].price,
+                        'date_end': span[j].date,
+                        'price_end': span[j].price,
+                        'difference': span[j].price / span[0].price});
+        }
+    }
+
+    return dates;
+}
+
+// Update table of dates
+function updateTable(dates) {
+    console.log('update table');
 }
 
 // Draw line graph on chart with selected data
-function draw(data, product) {
+function updateChart(data) {
   
-    // Copy data oject
-    var data = data[product];
-
     // Format the data
     data.forEach(function(d) {
-        if (typeof d.Date == 'string') {
-            d.Date = parseTime(d.Date);
-        }
+        d.date = parseTime(d.date);
     });
 
     // Update x & y domains
-    x.domain(d3.extent(data, function(d) { return d.Date; }));
-    y.domain([0, d3.max(data, function(d) { return d.Price; })]);
+    x.domain(d3.extent(data, function(d) { return d.date; }));
+    y.domain([0, d3.max(data, function(d) { return d.price; })]);
 
     // Transition x & y axis
     svg.select(".x")

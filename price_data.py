@@ -14,7 +14,7 @@ output = {'BTC-USD': [],
 # Create gdax client
 client = gdax.PublicClient()
 
-# Set date range
+# Set complete date range
 start = datetime.date(2013, 1, 1)
 end = datetime.date.today()
 
@@ -51,7 +51,7 @@ for dates in date_ranges:
             # Add price and date to output
             price = float(candle[4])
             date = datetime.date.fromtimestamp(candle[0]).isoformat()
-            output[product_id].append({'Date': date, 'Price': price})
+            output[product_id].append({'date': date, 'price': price})
 
         # Pause between requests to comply with API limits
         time.sleep(3)
