@@ -5,9 +5,12 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="css/style.css">
+
+
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
 
         <title>Crypto Swings</title>
     </head>
@@ -17,7 +20,7 @@
 
         <div class="row">
 
-            <div class="col-md-3  col-sm-12">
+            <div class="col-md-3 col-md-offset-1  col-sm-12">
                 <h2>Crypto Swings</h2>
 
                 <form>
@@ -57,8 +60,25 @@
 
             </div>
 
-            <div class="col-md-9 col-sm-12">
+            <div class="col-md-7 col-sm-12">
                 <svg></svg>
+                <div class="table-responsive">
+                    <table id="example" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Start Date</th>
+                                <th>Start Price</th>
+                                <th>End Date</th>
+                                <th>End Price</th>
+                                <th>Days</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-table">
+
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
@@ -66,7 +86,11 @@
     </div> <!-- container -->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="js/process.js"></script>
 

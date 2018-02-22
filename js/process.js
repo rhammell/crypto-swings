@@ -45,6 +45,8 @@ var price_data;
 
 // Load price data initialize chart
 $(document).ready(function() {
+
+    $('#example').DataTable();
   
     // Load in price data
     $.getJSON("price_data.json", function(json) {
@@ -76,21 +78,18 @@ function process() {
     var data = jQuery.extend(true, [], price_data[product]);
 
     // Calulate dates that meet parameter search
-    dates = calculatedates(data, change, time);
-    console.log('Num dates: ' + dates.length.toString());
-    for (i in dates) {
-        console.log(dates[i]);
-    }
+    dates = calculateDates(data, change, time);
 
     // Update table
     updateTable(dates);
 
     // Update chart
-    updateChart(data);
+    updateChart(data, dates);
 }
 
-// Return the price dates that meet input criteria
-function calculatedates(data, change, time) {
+
+// Return the price date info that meet input criteria
+function calculateDates(data, change, time) {
 
     // Set output
     var dates = [];
@@ -107,25 +106,27 @@ function calculatedates(data, change, time) {
         // Determine if price change occured within span
         for (j=1; j < span.length; j++) {
             if (change > 1.0) {
-                if (span[j].price > span[0].price * change) {
-                    changed = true;
-                    break;
-                }
+                var valid = span[j]['price'] > span[0]['price'] * change;
             } else {
-                if (span[j].price < span[0].price * change) {
-                    changed = true;
-                    break;
-                }
+                var valid = span[j]['price'] < span[0]['price'] * change;
+            } 
+
+            if (valid) {
+                changed = true;
+                break;
             }
         }
 
         // Update output
         if (changed) {
-            dates.push({'date_start': span[0].date,
-                        'price_start': span[0].price,
-                        'date_end': span[j].date,
-                        'price_end': span[j].price,
-                        'difference': span[j].price / span[0].price});
+            dates.push({
+                'date_start': span[0]['date'],
+                'price_start': span[0]['price'].toFixed(2),
+                'date_end': span[j]['date'],
+                'price_end': span[j]['price'].toFixed(2),
+                'days': j,
+                'change': (span[j]['price'] - span[0]['price']) / span[0]['price'] * 100.
+            });
         }
     }
 
@@ -135,10 +136,45 @@ function calculatedates(data, change, time) {
 // Update table of dates
 function updateTable(dates) {
     console.log('update table');
+
+    // Clear table
+    var t = $('#example').DataTable();
+    t.clear().draw();
+
+    // Initialize data
+    data = [];
+
+    // Loop through dates info
+    dates.forEach( function(date) {
+
+        // Format change value
+        if (date['change'] > 0) {
+            var change_class = 'positive';
+            var prefix = '+';
+        } else {
+            var change_class = 'negative';
+            var prefix = '-'; 
+        }
+
+        // Add to data array 
+        data.push( [
+          date['date_start'],
+          date['price_start'],
+          date['date_end'],
+          date['price_end'],
+          date['days'],
+          date['change'].toFixed(2) + '%'
+        ]);
+    });
+
+    // Add rows to table
+    t.rows.add(data);
+    t.draw();
+
 }
 
 // Draw line graph on chart with selected data
-function updateChart(data) {
+function updateChart(data, dates) {
   
     // Format the data
     data.forEach(function(d) {

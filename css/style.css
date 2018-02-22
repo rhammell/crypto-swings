@@ -3,3 +3,13 @@
   stroke: steelblue;
   stroke-width: 1px;
 }
+
+.positive {
+  color: green;
+  font-weight: bold;
+}
+
+.negative {
+  color: red;
+  font-weight: bold;
+}
