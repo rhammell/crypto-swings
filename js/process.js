@@ -1,7 +1,7 @@
 
 // Set dimentions of canvas graph
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 600 - margin.left - margin.right,
+    width = 800 - margin.left - margin.right,
     height = 350 - margin.top - margin.bottom;
 
 var svg = d3.select("svg")
@@ -36,9 +36,9 @@ var valueline = d3.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.price); });
 
+// Add line
 svg.append("path")
     .attr("class", "line")
-
 
 // Global variable
 var price_data;
@@ -77,9 +77,7 @@ function search() {
     // Grab parameter values
     product = $('#product').val();
     change = (100 + parseFloat($('#change').val())) / 100.;
-    change_class = change > 1 ? 'positive' : 'negative'; 
-    console.log(change);
-    console.log(change_class);
+    type = change > 1 ? 'positive' : 'negative'; 
     time = parseInt($('#time').val());
 
     // Copy selected product data 
@@ -89,10 +87,10 @@ function search() {
     dates = calculateDates(data, change, time);
 
     // Update table
-    updateTable(dates, change_class);
+    updateTable(dates, type);
 
     // Update chart
-    updateChart(data, dates);
+    updateChart(data, dates, type);
 }
 
 
@@ -142,7 +140,7 @@ function calculateDates(data, change, time) {
 }
 
 // Update table of dates
-function updateTable(dates, change_class) {
+function updateTable(dates, type) {
     console.log('update table');
 
     // Clear table
@@ -173,15 +171,15 @@ function updateTable(dates, change_class) {
     // Update column class
     if (data.length > 0) {
         $('#example tr').each(function(){
-            $(this).find('td:last').addClass(change_class);
+            $(this).find('td:last').addClass(type + '-text');
         });
     }
 }
 
 // Draw line graph on chart with selected data
-function updateChart(data, dates) {
+function updateChart(data, dates, type) {
   
-    // Format the data
+    // Format the line data
     data.forEach(function(d) {
         d.date = parseTime(d.date);
     });
@@ -198,8 +196,48 @@ function updateChart(data, dates) {
         .transition()
             .call(y_axis);
 
+    // Format point data
+    dates.forEach(function(d) {
+        d.date_start = parseTime(d.date_start);
+    })
+
+        // Remove previous vertical lines
+    svg.selectAll(".vertical-line")
+        .remove()
+
+    // Loop through each date
+    dates.forEach( function(d) {
+
+        // Vertical line data
+        var data = [{'date': d['date_start'], 'price': 0.0}, 
+                    {'date': d['date_start'], 'price': d['price_start']}]
+
+        // Add line
+        svg.append("path")
+            .attr("class", "vertical-line")
+            .attr("d", valueline(data));
+    })
+
+    // Remove previous points
+    svg.selectAll("circle")
+        .remove();
+
+    // Add new points
+    svg.selectAll("circle")
+        .data(dates)
+        .enter()
+        .append("circle")  // Add circle svg
+        .attr("class", type + '-dot')
+        .attr("cx", function(d) { return x(d.date_start); })
+        .attr("cy", function(d) { return y(d.price_start); })
+        .attr("r", 2.5);  // radius 
+
+
+    // Update line
     svg.selectAll(".line")    
         .datum(data)
-        .attr("d", valueline)
+        .attr("d", valueline);
+
+
 
 }

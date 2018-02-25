@@ -1,15 +1,31 @@
 .line {
   fill: none;
-  stroke: steelblue;
+  stroke: #555555;
   stroke-width: 1px;
 }
 
-.positive {
-  color: green;
+.vertical-line {
+  fill: none;
+  stroke: #44be24;
+  stroke-width: 1px;
+}
+
+.positive-dot {
+  fill: #44be24;
+  stroke: #000000;
+}
+
+.negative-dot {
+  fill: #ff0000;
+  stroke: #000000;
+}
+
+.positive-text {
+  color: #44be24;
   font-weight: bold;
 }
 
-.negative {
+.negative-text {
   color: red;
   font-weight: bold;
 }
