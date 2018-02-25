@@ -40,14 +40,20 @@ svg.append("path")
     .attr("class", "line")
 
 
-// price data held in global 
+// Global variable
 var price_data;
 
 // Load price data initialize chart
 $(document).ready(function() {
 
-    $('#example').DataTable();
-  
+    // Set datatable
+    $('#example').DataTable({
+        info: true,
+        searching: false,
+        scrollY: 300,
+        paging: false
+    });
+
     // Load in price data
     $.getJSON("price_data.json", function(json) {
 
@@ -55,23 +61,25 @@ $(document).ready(function() {
         price_data = json;
 
         // Process search parameters
-        process();
+        search();
     });
 });
 
 // Callback when parameters are changed
 $('.parameter').on('change', function() {
 
-    // Process search paramters
-    process();
+    // Perform search
+    search();
 });
 
-function process() {
+function search() {
 
     // Grab parameter values
     product = $('#product').val();
-    change = parseFloat($('#change').val());
-    change = (100 + change) / 100.
+    change = (100 + parseFloat($('#change').val())) / 100.;
+    change_class = change > 1 ? 'positive' : 'negative'; 
+    console.log(change);
+    console.log(change_class);
     time = parseInt($('#time').val());
 
     // Copy selected product data 
@@ -81,7 +89,7 @@ function process() {
     dates = calculateDates(data, change, time);
 
     // Update table
-    updateTable(dates);
+    updateTable(dates, change_class);
 
     // Update chart
     updateChart(data, dates);
@@ -134,7 +142,7 @@ function calculateDates(data, change, time) {
 }
 
 // Update table of dates
-function updateTable(dates) {
+function updateTable(dates, change_class) {
     console.log('update table');
 
     // Clear table
@@ -147,15 +155,6 @@ function updateTable(dates) {
     // Loop through dates info
     dates.forEach( function(date) {
 
-        // Format change value
-        if (date['change'] > 0) {
-            var change_class = 'positive';
-            var prefix = '+';
-        } else {
-            var change_class = 'negative';
-            var prefix = '-'; 
-        }
-
         // Add to data array 
         data.push( [
           date['date_start'],
@@ -167,10 +166,16 @@ function updateTable(dates) {
         ]);
     });
 
-    // Add rows to table
+    // Update table with data 
     t.rows.add(data);
     t.draw();
 
+    // Update column class
+    if (data.length > 0) {
+        $('#example tr').each(function(){
+            $(this).find('td:last').addClass(change_class);
+        });
+    }
 }
 
 // Draw line graph on chart with selected data
