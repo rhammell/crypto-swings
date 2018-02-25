@@ -1,10 +1,11 @@
 
 // Set dimentions of canvas graph
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 800 - margin.left - margin.right,
-    height = 350 - margin.top - margin.bottom;
+var margin = {top: 20, right:50, bottom: 30, left: 50},
+    width = parseInt(d3.select("#chart").style("width")) - margin.left - margin.right,
+    height = parseInt(d3.select("#chart").style("height")) - margin.top - margin.bottom;
 
-var svg = d3.select("svg")
+// Define canvas
+var svg = d3.select("#chart")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
@@ -40,6 +41,34 @@ var valueline = d3.line()
 svg.append("path")
     .attr("class", "line")
 
+// Define responsive behavior
+function resize() {
+
+  console.log('resize')
+
+  var width = parseInt(d3.select("#chart").style("width")) - margin.left - margin.right,
+  height = parseInt(d3.select("#chart").style("height")) - margin.top - margin.bottom;
+
+  // Update the range of the scale with new width/height
+  x.range([0, width]);
+  y.range([height, 0]);
+
+  // Update the axis and text with the new scale
+  svg.select('.x')
+    .attr("transform", "translate(0," + height + ")")
+    .call(x_axis);
+
+  svg.select('.y')
+    .call(y_axis);
+
+  // Redo search
+  search();
+
+};
+
+
+d3.select(window).on('resize', resize);
+
 // Global variable
 var price_data;
 
@@ -47,7 +76,7 @@ var price_data;
 $(document).ready(function() {
 
     // Set datatable
-    $('#example').DataTable({
+    $('#results').DataTable({
         info: true,
         searching: false,
         scrollY: 300,
@@ -144,7 +173,7 @@ function updateTable(dates, type) {
     console.log('update table');
 
     // Clear table
-    var t = $('#example').DataTable();
+    var t = $('#results').DataTable();
     t.clear().draw();
 
     // Initialize data
@@ -170,7 +199,7 @@ function updateTable(dates, type) {
 
     // Update column class
     if (data.length > 0) {
-        $('#example tr').each(function(){
+        $('#results tr').each(function(){
             $(this).find('td:last').addClass(type + '-text');
         });
     }

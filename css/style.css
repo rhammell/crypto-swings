@@ -1,3 +1,13 @@
+#chart-wrapper {
+  height: 350px;
+}
+
+#chart {
+  width: 100%;
+  height: 350px;
+  position: absolute;
+}
+
 .line {
   fill: none;
   stroke: #555555;
