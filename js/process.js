@@ -1,6 +1,6 @@
 
 // Set dimentions of canvas graph
-var margin = {top: 20, right:50, bottom: 30, left: 50},
+var margin = {top: 20, right:20, bottom: 30, left: 50},
     width = parseInt(d3.select("#chart").style("width")) - margin.left - margin.right,
     height = parseInt(d3.select("#chart").style("height")) - margin.top - margin.bottom;
 
@@ -19,20 +19,24 @@ var parseTime = d3.timeParse("%Y-%m-%d");
 var x = d3.scaleTime().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
 
+// Set axes
 var x_axis = d3.axisBottom()
     .scale(x);
 var y_axis = d3.axisLeft()
     .scale(y);
 
+// Add x axis
 svg.append("g")
     .attr("transform", "translate(0," + height + ")")
     .attr("class", "x axis")
     .call(x_axis);
 
+// Add y axis
 svg.append("g")
     .attr("class", "y axis")
     .call(y_axis);
 
+// Line definiition
 var valueline = d3.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.price); });
@@ -41,32 +45,22 @@ var valueline = d3.line()
 svg.append("path")
     .attr("class", "line")
 
-// Define responsive behavior
+// Resize function
 function resize() {
 
-  console.log('resize')
+    // Get current width
+    var width = parseInt(d3.select("#chart").style("width")) - margin.left - margin.right;
 
-  var width = parseInt(d3.select("#chart").style("width")) - margin.left - margin.right,
-  height = parseInt(d3.select("#chart").style("height")) - margin.top - margin.bottom;
+    // Update x axis
+    x.range([0, width]);
 
-  // Update the range of the scale with new width/height
-  x.range([0, width]);
-  y.range([height, 0]);
-
-  // Update the axis and text with the new scale
-  svg.select('.x')
-    .attr("transform", "translate(0," + height + ")")
-    .call(x_axis);
-
-  svg.select('.y')
-    .call(y_axis);
-
-  // Redo search
-  search();
+    // Redo search
+    search();
 
 };
 
 
+// Window resize callback
 d3.select(window).on('resize', resize);
 
 // Global variable
@@ -225,12 +219,17 @@ function updateChart(data, dates, type) {
         .transition()
             .call(y_axis);
 
+    // Update line
+    svg.selectAll(".line")    
+        .datum(data)
+        .attr("d", valueline);
+
     // Format point data
     dates.forEach(function(d) {
         d.date_start = parseTime(d.date_start);
     })
 
-        // Remove previous vertical lines
+    // Remove previous vertical lines
     svg.selectAll(".vertical-line")
         .remove()
 
@@ -243,7 +242,7 @@ function updateChart(data, dates, type) {
 
         // Add line
         svg.append("path")
-            .attr("class", "vertical-line")
+            .attr("class", type + "-line vertical-line") 
             .attr("d", valueline(data));
     })
 
@@ -256,17 +255,9 @@ function updateChart(data, dates, type) {
         .data(dates)
         .enter()
         .append("circle")  // Add circle svg
-        .attr("class", type + '-dot')
+        .attr("class", type + "-dot")
         .attr("cx", function(d) { return x(d.date_start); })
         .attr("cy", function(d) { return y(d.price_start); })
         .attr("r", 2.5);  // radius 
-
-
-    // Update line
-    svg.selectAll(".line")    
-        .datum(data)
-        .attr("d", valueline);
-
-
 
 }
