@@ -1,96 +1,84 @@
 <!doctype html>
 <html lang="en">
+
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
-
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
         <link rel="stylesheet" href="css/style.css">
-
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
 
         <title>Crypto Swings</title>
     </head>
+    
     <body>
 
-    <div class="container">
+        <div class="container">
+            <div class="row">
 
-        <div class="row">
+                <div class="col-xs-12">
 
-            <div class="col-sm-3 col-xs-12">
-                <h2>Crypto Swings <a href="https://github.com/rhammell/crypto-swings"><i class="fab fa-github fa-xs"></i></a></h2>
+                    <h2>Crypto Swings</a></h2>
 
-                <form>
-                    <div class="form-group">
-                        <label>Dates when </label>
-                        <select id="product" class="parameter form-control">
-                            <option value="BTC-USD">BTC</option>
-                            <option value="BCH-USD">BCH</option>
-                            <option value="ETH-USD" selected>ETH</option>
-                            <option value="LTC-USD">LTC</option>
-                        </select>
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label>See when </label>
+                            <select id="product" class="parameter form-control">
+                                <option value="BTC-USD" selected>BTC</option>
+                                <option value="BCH-USD">BCH</option>
+                                <option value="ETH-USD">ETH</option>
+                                <option value="LTC-USD">LTC</option>
+                            </select>
+                            <label> prices changed by </label>
+                            <select id="change" class="parameter form-control">
+                                <option value="50">+50%</option>
+                                <option value="40">+40%</option>
+                                <option value="30">+30%</option>
+                                <option value="20">+20%</option>
+                                <option value="10" selected>+10%</option>
+                                <option value="-10">-10%</option>
+                                <option value="-20">-20%</option>
+                                <option value="-30">-30%</option>
+                                <option value="-40">-40%</option>
+                                <option value="-50">-50%</option>
+                            </select>
+                            <label> within one</label>
+                            <select id="time" class="parameter form-control">
+                                <option value="1">Day</option>
+                                <option value="7">Week</option>
+                                <option value="30">Month</option>
+                            </select>
+                        </div>
+                    </form>
+
+                    <svg id="chart"></svg>
+
+                    <div class="table-responsive">
+                        <table id="results" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Start Date</th>
+                                    <th>Start Price</th>
+                                    <th>End Date</th>
+                                    <th>End Price</th>
+                                    <th>Days</th>
+                                    <th>Change</th>
+                                </tr>
+                            </thead>
+                        </table>
                     </div>
-                    <div class="form-group">
-                        <label>changed value by</label>
-                        <select id="change" class="parameter form-control">
-                            <option value="50">+50%</option>
-                            <option value="40">+40%</option>
-                            <option value="30">+30%</option>
-                            <option value="20">+20%</option>
-                            <option value="10" selected>+10%</option>
-                            <option value="-10">-10%</option>
-                            <option value="-20">-20%</option>
-                            <option value="-30">-30%</option>
-                            <option value="-40">-40%</option>
-                            <option value="-50">-50%</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>within</label>
-                        <select id="time" class="parameter form-control">
-                            <option value="1">1 Day</option>
-                            <option value="7">1 Week</option>
-                            <option value="30">1 Month</option>
-                        </select>
-                    </div>
-                </form>
 
-            </div>
-
-            <div class="col-sm-9 col-xs-12">                 
-                <svg id="chart"></svg>
-                <div class="table-responsive">
-                    <table id="results" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Start Date</th>
-                                <th>Start Price</th>
-                                <th>End Date</th>
-                                <th>End Price</th>
-                                <th>Days</th>
-                                <th>Change</th>
-                            </tr>
-                        </thead>
-                    </table>
                 </div>
             </div>
+        </div> 
 
-        </div>
-    
-    </div> <!-- container -->
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
-
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="js/process.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="js/process.js"></script>
 
     </body>
 </html>

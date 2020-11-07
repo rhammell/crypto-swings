@@ -3,16 +3,16 @@
 import time
 import datetime
 import json
-import gdax
+import cbpro
 
 # Initialize output data
 output = {'BTC-USD': [],
-          'BCH-USD': [],
           'ETH-USD': [],
+          'BCH-USD': [],
           'LTC-USD': [] }
 
-# Create gdax client
-client = gdax.PublicClient()
+# Create cbpro client
+client = cbpro.PublicClient()
 
 # Set complete date range
 start = datetime.date(2013, 1, 1)
@@ -20,7 +20,7 @@ end = datetime.date.today()
 
 # Chunk date range into 200-day ranges to comply with API limits
 date_ranges = []
-span  = datetime.timedelta(days=100)
+span  = datetime.timedelta(days=200)
 stop = end - span
 
 while start < stop:
@@ -29,13 +29,14 @@ while start < stop:
     start = current
 date_ranges.append((start, end))
 
-# Loop through date ranges
-for dates in date_ranges:
-    print(dates[0], dates[1])
 
-    # Loop through product id's 
-    for product_id in output.keys():
-        print(product_id)
+# Loop through product id's 
+for product_id in output.keys():
+    print(product_id)
+
+    # Loop through date ranges
+    for dates in date_ranges:
+        print(dates[0], dates[1])
 
         # Make API request
         candles = client.get_product_historic_rates(
@@ -54,8 +55,8 @@ for dates in date_ranges:
             output[product_id].append({'date': date, 'price': price})
 
         # Pause between requests to comply with API limits
-        time.sleep(3)
+        time.sleep(1)
 
 # Save json formatted data
-with open('price_data.json', 'w') as f:
-    json.dump(output, f)
+with open('prices.json', 'w') as f:
+    json.dump(output, f, indent=4)
