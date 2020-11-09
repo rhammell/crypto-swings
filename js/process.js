@@ -12,7 +12,7 @@ var svg = d3.select("#chart")
     .attr("transform", 
           "translate(" + margin.left + "," + margin.top + ")");
 
-// Parse date / time of data
+// Function to format date string into date object
 var parseTime = d3.timeParse("%Y-%m-%d");
 
 // Set data ranges
@@ -38,12 +38,17 @@ svg.append("g")
 
 // Line definiition
 var valueline = d3.line()
-    .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.price); });
+    .x(function(d) { return x(parseTime(d['date'])); })
+    .y(function(d) { return y(d['price']); });
 
 // Add line
 svg.append("path")
     .attr("class", "line")
+
+// Create a tooltip
+var tooltip = d3.select("body").append("div")    
+    .attr("id", "tooltip")                
+    .style("opacity", 0);
 
 // Resize function
 function resize() {
@@ -56,26 +61,28 @@ function resize() {
     update();
 };
 
+// Return positive or negative class string based in input string
+function percentClass(s) {
+    return (parseInt(s) > 0 ? 'positive' : 'negative')
+}
+
 // Update 
 function update() {
 
     // Grab parameter values
     product = $('#product').val();
     change = parseInt($('#change').val());
-    type = change > 0 ? 'positive' : 'negative'; 
     time = parseInt($('#time').val());
 
     // Copy selected product data 
-    var data = jQuery.extend(true, [], price_data[product]);
+    var data = price_data[product];
 
     // Calulate dates that meet parameter search
     var results = calculateResults(data, change, time);
 
-    // Update table
-    updateTable(results, type);
-
-    // Update chart
-    updateChart(data, results, type);
+    // Update table and chart
+    updateTable(results);
+    updateChart(data, results);
 }
 
 // Return the price date info that meet input criteria
@@ -110,7 +117,7 @@ function calculateResults(data, change, time) {
                     'date_end': span[j]['date'],
                     'price_end': span[j]['price'].toFixed(2),
                     'days': j,
-                    'change': (span[j]['price'] - span[0]['price']) / span[0]['price'] * 100.
+                    'change': ((span[j]['price'] - span[0]['price']) / span[0]['price'] * 100.).toFixed(2)
                 });
 
                 break;
@@ -122,7 +129,7 @@ function calculateResults(data, change, time) {
 }
 
 // Update table of dates
-function updateTable(results, type) {
+function updateTable(results) {
 
     // Format results into row data
     row_data = results.map(function(r){
@@ -132,7 +139,7 @@ function updateTable(results, type) {
           r['date_end'],
           r['price_end'],
           r['days'],
-          r['change'].toFixed(2) + '%'
+          r['change'] + '%'
         ]
     })
 
@@ -144,20 +151,17 @@ function updateTable(results, type) {
 
     // Update column class
     if (row_data.length > 0) {
-        $('#results tr').find('td:last').addClass(type + '-text');
+        $('#results tr').find('td:last').each(function(){
+            $(this).addClass(percentClass($(this).html()) + '-text');
+        });
     }
 }
 
 // Draw line graph on chart with selected data
-function updateChart(data, results, type) {
+function updateChart(data, results) {
   
-    // Format the line data
-    data.forEach(function(d) {
-        d['date'] = parseTime(d['date']);
-    });
-
     // Update x & y domains
-    x.domain(d3.extent(data, function(d) { return d['date']; }));
+    x.domain(d3.extent(data, function(d) { return parseTime(d['date']); }));
     y.domain([0, d3.max(data, function(d) { return d['price']; })]);
 
     // Transition x & y axis
@@ -173,25 +177,20 @@ function updateChart(data, results, type) {
         .datum(data)
         .attr("d", valueline);
 
-    // Format point data
-    results.forEach(function(r) {
-        r['date_start'] = parseTime(r['date_start']);
-    })
-
     // Remove previous vertical lines
     svg.selectAll(".vertical-line")
         .remove()
 
     // Loop through each result
-    results.forEach(function(r) {
+    results.forEach(function(d) {
 
         // Vertical line data
-        var data = [{'date': r['date_start'], 'price': 0.0}, 
-                    {'date': r['date_start'], 'price': r['price_start']}]
+        var data = [{'date': d['date_start'], 'price': 0.0}, 
+                    {'date': d['date_start'], 'price': d['price_start']}]
 
         // Add line
         svg.append("path")
-            .attr("class", type + "-line vertical-line") 
+            .attr("class", percentClass(d['change']) + "-line vertical-line") 
             .attr("d", valueline(data));
     })
 
@@ -204,16 +203,36 @@ function updateChart(data, results, type) {
         .data(results)
         .enter()
         .append("circle")  // Add circle svg
-        .attr("class", type + "-dot")
-        .attr("cx", function(r) { return x(r['date_start']); })
-        .attr("cy", function(r) { return y(r['price_start']); })
-        .attr("r", 2.5);  // radius 
+        .attr("class", function(d) { return percentClass(d['change']) + "-dot"; })
+        .attr("cx", function(d) { return x(parseTime(d['date_start'])); })
+        .attr("cy", function(d) { return y(d['price_start']); })
+        .attr("r", 3)
+        .on("mousemove", function(d) {     
+            var matrix = this.getScreenCTM()
+                .translate(+ this.getAttribute("cx"), + this.getAttribute("cy")); 
+
+            tooltip
+                .html(
+                    "<p><span class='" + percentClass(d['change']) + "-text'>" + d['change'] + "%</span> in <strong>" + d['days'] + "</strong> days</p>" + 
+                    "<p><small>" + d['date_start'] + ': $' + d['price_start']  + "</small></p>" + 
+                    "<p><small>" + d['date_end'] + ': $' + d['price_end']  + "</small></p>"
+                ) 
+                .style("left", (window.pageXOffset + matrix.e + 2) + "px")
+                .style("top", (window.pageYOffset + matrix.f - $("#tooltip").outerHeight() -2) + "px")
+                .style("opacity", 1);         
+            })  
+        .on("mouseout", function(d) {        
+            tooltip
+                .html("") 
+                .style("opacity", 0);         
+            })                    
+ 
 }
 
 // Window resize callback
 d3.select(window).on('resize', resize);
 
-// Callback when parameters are changed
+// Callback when input parameters are changed
 $('.parameter').on('change', function() {
 
     // Update chart

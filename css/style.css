@@ -56,3 +56,20 @@ body {
   color: #ef4f1b;
   font-weight: bold;
 }
+
+#tooltip { 
+    position: absolute;              
+    padding: 3px 5px;    
+    font: 12px sans-serif;    
+    background: white; 
+    border: 1px solid grey;    
+    border-radius: 4px;     
+    pointer-events: none;   
+    text-align: center;
+    width: 120px;
+}
+
+#tooltip p { 
+  margin: 0px;
+  padding: 0px;
+}
