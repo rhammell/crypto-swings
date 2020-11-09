@@ -56,16 +56,6 @@ function resize() {
     update();
 };
 
-// Window resize callback
-d3.select(window).on('resize', resize);
-
-// Callback when parameters are changed
-$('.parameter').on('change', function() {
-
-    // Update chart
-    update();
-});
-
 // Update 
 function update() {
 
@@ -79,7 +69,7 @@ function update() {
     var data = jQuery.extend(true, [], price_data[product]);
 
     // Calulate dates that meet parameter search
-    results = calculateResults(data, change, time);
+    var results = calculateResults(data, change, time);
 
     // Update table
     updateTable(results, type);
@@ -87,7 +77,6 @@ function update() {
     // Update chart
     updateChart(data, results, type);
 }
-
 
 // Return the price date info that meet input criteria
 function calculateResults(data, change, time) {
@@ -104,9 +93,6 @@ function calculateResults(data, change, time) {
         // Subset data for selected time span
         span = data.slice(i,i+time+1);
 
-        // Set change flag
-        var changed = false;
-
         // Determine if price change occured within span
         for (j=1; j < span.length; j++) {
             if (change > 1.0) {
@@ -116,21 +102,19 @@ function calculateResults(data, change, time) {
             } 
 
             if (valid) {
-                changed = true;
+
+                // Add results to output
+                results.push({
+                    'date_start': span[0]['date'],
+                    'price_start': span[0]['price'].toFixed(2),
+                    'date_end': span[j]['date'],
+                    'price_end': span[j]['price'].toFixed(2),
+                    'days': j,
+                    'change': (span[j]['price'] - span[0]['price']) / span[0]['price'] * 100.
+                });
+
                 break;
             }
-        }
-
-        // Update output
-        if (changed) {
-            results.push({
-                'date_start': span[0]['date'],
-                'price_start': span[0]['price'].toFixed(2),
-                'date_end': span[j]['date'],
-                'price_end': span[j]['price'].toFixed(2),
-                'days': j,
-                'change': (span[j]['price'] - span[0]['price']) / span[0]['price'] * 100.
-            });
         }
     }
 
@@ -139,38 +123,28 @@ function calculateResults(data, change, time) {
 
 // Update table of dates
 function updateTable(results, type) {
-    console.log('update table');
 
-    // Clear table
-    var t = $('#results').DataTable();
-    t.clear().draw();
-
-    // Initialize data
-    row_data = [];
-
-    // Loop through dates info
-    results.forEach(function(result){
-
-        // Add to data row array 
-        row_data.push( [
-          result['date_start'],
-          result['price_start'],
-          result['date_end'],
-          result['price_end'],
-          result['days'],
-          result['change'].toFixed(2) + '%'
-        ]);
-    });
+    // Format results into row data
+    row_data = results.map(function(r){
+        return [
+          r['date_start'],
+          r['price_start'],
+          r['date_end'],
+          r['price_end'],
+          r['days'],
+          r['change'].toFixed(2) + '%'
+        ]
+    })
 
     // Update table with row data 
+    var t = $('#results').DataTable();
+    t.clear();
     t.rows.add(row_data);
     t.draw();
 
     // Update column class
     if (row_data.length > 0) {
-        $('#results tr').each(function(){
-            $(this).find('td:last').addClass(type + '-text');
-        });
+        $('#results tr').find('td:last').addClass(type + '-text');
     }
 }
 
@@ -179,12 +153,12 @@ function updateChart(data, results, type) {
   
     // Format the line data
     data.forEach(function(d) {
-        d.date = parseTime(d.date);
+        d['date'] = parseTime(d['date']);
     });
 
     // Update x & y domains
-    x.domain(d3.extent(data, function(d) { return d.date; }));
-    y.domain([0, d3.max(data, function(d) { return d.price; })]);
+    x.domain(d3.extent(data, function(d) { return d['date']; }));
+    y.domain([0, d3.max(data, function(d) { return d['price']; })]);
 
     // Transition x & y axis
     svg.select(".x")
@@ -200,8 +174,8 @@ function updateChart(data, results, type) {
         .attr("d", valueline);
 
     // Format point data
-    results.forEach(function(d) {
-        d.date_start = parseTime(d.date_start);
+    results.forEach(function(r) {
+        r['date_start'] = parseTime(r['date_start']);
     })
 
     // Remove previous vertical lines
@@ -209,11 +183,11 @@ function updateChart(data, results, type) {
         .remove()
 
     // Loop through each result
-    results.forEach( function(d) {
+    results.forEach(function(r) {
 
         // Vertical line data
-        var data = [{'date': d['date_start'], 'price': 0.0}, 
-                    {'date': d['date_start'], 'price': d['price_start']}]
+        var data = [{'date': r['date_start'], 'price': 0.0}, 
+                    {'date': r['date_start'], 'price': r['price_start']}]
 
         // Add line
         svg.append("path")
@@ -231,11 +205,20 @@ function updateChart(data, results, type) {
         .enter()
         .append("circle")  // Add circle svg
         .attr("class", type + "-dot")
-        .attr("cx", function(d) { return x(d.date_start); })
-        .attr("cy", function(d) { return y(d.price_start); })
+        .attr("cx", function(r) { return x(r['date_start']); })
+        .attr("cy", function(r) { return y(r['price_start']); })
         .attr("r", 2.5);  // radius 
 }
 
+// Window resize callback
+d3.select(window).on('resize', resize);
+
+// Callback when parameters are changed
+$('.parameter').on('change', function() {
+
+    // Update chart
+    update();
+});
 
 // Load price data initialize chart
 $(document).ready(function() {
