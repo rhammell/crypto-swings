@@ -66,6 +66,11 @@ function percentClass(s) {
     return (parseInt(s) > 0 ? 'positive' : 'negative')
 }
 
+// Return input as number with commas
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 // Update 
 function update() {
 
@@ -135,9 +140,9 @@ function updateTable(results) {
     row_data = results.map(function(r){
         return [
           r['date_start'],
-          r['price_start'],
+          "$" + numberWithCommas(r['price_start']),
           r['date_end'],
-          r['price_end'],
+          "$" + numberWithCommas(r['price_end']),
           r['days'],
           r['change'] + '%'
         ]
@@ -214,8 +219,8 @@ function updateChart(data, results) {
             tooltip
                 .html(
                     "<p><span class='" + percentClass(d['change']) + "-text'>" + d['change'] + "%</span> in <strong>" + d['days'] + "</strong> day" + ((d['days'] > 1) ? 's':'') + "</p>" + 
-                    "<p><small>" + d['date_start'] + ': $' + d['price_start']  + "</small></p>" + 
-                    "<p><small>" + d['date_end'] + ': $' + d['price_end']  + "</small></p>"
+                    "<p><small>" + d['date_start'] + ': $' + numberWithCommas(d['price_start'])  + "</small></p>" + 
+                    "<p><small>" + d['date_end'] + ': $' + numberWithCommas(d['price_end'])  + "</small></p>"
                 ) 
                 .style("left", (window.pageXOffset + matrix.e + 2) + "px")
                 .style("top", (window.pageYOffset + matrix.f - $("#tooltip").outerHeight() -2) + "px")
