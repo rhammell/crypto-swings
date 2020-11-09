@@ -213,7 +213,7 @@ function updateChart(data, results) {
 
             tooltip
                 .html(
-                    "<p><span class='" + percentClass(d['change']) + "-text'>" + d['change'] + "%</span> in <strong>" + d['days'] + "</strong> days</p>" + 
+                    "<p><span class='" + percentClass(d['change']) + "-text'>" + d['change'] + "%</span> in <strong>" + d['days'] + "</strong> day" + ((d['days'] > 1) ? 's':'') + "</p>" + 
                     "<p><small>" + d['date_start'] + ': $' + d['price_start']  + "</small></p>" + 
                     "<p><small>" + d['date_end'] + ': $' + d['price_end']  + "</small></p>"
                 ) 
