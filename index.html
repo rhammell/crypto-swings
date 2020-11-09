@@ -6,7 +6,9 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
         <link rel="stylesheet" href="css/style.css">
 
@@ -20,9 +22,9 @@
 
                 <div class="col-xs-12">
 
-                    <h2>Crypto Swings</a></h2>
+                    <h2>Crypto Swings <a target="_blank" href="https://github.com/rhammell/crypto-swings"><i class="fab fa-github fa-xs"></i></a></h2>
 
-                    <form class="form-inline">
+                    <form id="search" class="form-inline">
                         <div class="form-group">
                             <label>See when </label>
                             <select id="product" class="parameter form-control">
@@ -36,8 +38,8 @@
                                 <option value="50">+50%</option>
                                 <option value="40">+40%</option>
                                 <option value="30">+30%</option>
-                                <option value="20">+20%</option>
-                                <option value="10" selected>+10%</option>
+                                <option value="20" selected>+20%</option>
+                                <option value="10">+10%</option>
                                 <option value="-10">-10%</option>
                                 <option value="-20">-20%</option>
                                 <option value="-30">-30%</option>
@@ -47,7 +49,7 @@
                             <label> within one</label>
                             <select id="time" class="parameter form-control">
                                 <option value="1">Day</option>
-                                <option value="7">Week</option>
+                                <option value="7" selected>Week</option>
                                 <option value="30">Month</option>
                             </select>
                         </div>
@@ -77,6 +79,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+        <script src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
         <script src="https://d3js.org/d3.v4.min.js"></script>
         <script src="js/process.js"></script>
 

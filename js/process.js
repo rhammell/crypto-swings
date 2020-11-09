@@ -56,19 +56,11 @@ function resize() {
     update();
 };
 
-
 // Window resize callback
 d3.select(window).on('resize', resize);
 
-// Global variable
-var price_data;
-
-
 // Callback when parameters are changed
 $('.parameter').on('change', function() {
-
-    // Clear random selection interval
-    clearInterval(timeout)
 
     // Update chart
     update();
@@ -242,7 +234,6 @@ function updateChart(data, results, type) {
         .attr("cx", function(d) { return x(d.date_start); })
         .attr("cy", function(d) { return y(d.price_start); })
         .attr("r", 2.5);  // radius 
-
 }
 
 
@@ -265,14 +256,5 @@ $(document).ready(function() {
 
         // Process search parameters
         update();
-
-        // Random updates
-        //timeout = setInterval(function() {
-        //    $("#product").focus()
-        //    $("#product")[0].selectedIndex = Math.floor(Math.random() * 4);
-        //    update();
-        //}, 5000);    
-
-
     });
 });
